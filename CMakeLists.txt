@@ -24,19 +24,17 @@ endif()
 
 add_library(json11 json11.cpp)
 target_include_directories(json11 PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_compile_options(json11
-  PRIVATE -fPIC -fno-rtti -fno-exceptions -Wall)
 
-# Set warning flags, which may vary per platform
-include(CheckCXXCompilerFlag)
-set(_possible_warnings_flags /W4 /WX -Wextra -Werror)
-foreach(_warning_flag ${_possible_warnings_flags})
-  unset(_flag_supported)
-  CHECK_CXX_COMPILER_FLAG(${_warning_flag} _flag_supported)
-  if(${_flag_supported})
-    target_compile_options(json11 PRIVATE ${_warning_flag})
-  endif()
-endforeach()
+# Разные флаги для разных компиляторов
+if(MSVC)
+  # Флаги для MSVC
+  target_compile_options(json11 PRIVATE /W3)
+  # Отключаем RTTI и исключения если нужно
+  # target_compile_options(json11 PRIVATE /GR- /EHsc-)
+else()
+  # Флаги для GCC/Clang
+  target_compile_options(json11 PRIVATE -fPIC -fno-rtti -fno-exceptions -Wall -Wextra)
+endif()
 
 configure_file("json11.pc.in" "json11.pc" @ONLY)
 
